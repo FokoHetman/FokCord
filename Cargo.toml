@@ -1,0 +1,10 @@
+[package]
+name = "FokCord"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+emojis = "0.6.4"
+json = "0.12.4"
+libc = "0.2.169"
+unicode-segmentation = "1.12.0"

@@ -1,0 +1,5 @@
+# pack-refs with: peeled fully-peeled sorted 
+c9aeef34771aee0bd929963399bad432b3f05c4b refs/remotes/origin/FokoHetman-patch-1
+cfe3d5990968a10373b5f7a8eed4cff5b5321b75 refs/remotes/origin/main
+96b71bba78e35c8a077bb264e8765ad00f20f6fa refs/tags/FokLang-temp-0.0.1
+96b71bba78e35c8a077bb264e8765ad00f20f6fa refs/tags/test
