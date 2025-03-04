@@ -395,30 +395,80 @@ pub fn change_server(arguments: Arguments) -> Proventus {
     },
     FunctionArgs::singleFokcord(id, program) => {
       let mut  program = program;
-      let id = uwInt(id);
-      let id = if id < 0 {
-        program.guilds.len()-id.abs() as usize
-      } else {
-        id as usize
-      };
-      if id <= program.guilds.len() {
-        program.current_guild = id;
-        program.update_guild(id);
-      } else {
-        for i in 0..program.guilds.len() {
-          if program.guilds[i].id == id as i64 {
-            program.current_guild = i;
-            program.update_guild(i);
-            break
-          }
-        }
+      match id.value {
+        Fructa::Numerum(_) => {
+          let id = uwInt(id);
+          let id = if id < 0 {
+            program.guilds.len()-id.abs() as usize
+          } else {
+            id as usize
+          };
+          if id <= program.guilds.len() {
+            program.current_guild = id;
+            program.update_guild(id);
+          } else {
+            for i in 0..program.guilds.len() {
+              if program.guilds[i].id == id as i64 {
+                program.current_guild = i;
+                program.update_guild(i);
+                break
+              }
+            }
         
-      }
+          }
       
-      Proventus{value: Fructa::FokcordModifier(program), id: -5}
-    },
+          Proventus{value: Fructa::FokcordModifier(program), id: -5}
+        },
+        Fructa::Inventarii(_) => {
+          let name = combine_list_to_string(id);
+          let index = closest_match(name, program.guilds.iter().map(|x| x.name.clone()).collect::<Vec<String>>());
+
+          //println!("!!!!!!!!!\n{:#?}\n!!!!!!", program.guilds.iter().map(|x| x.name.clone()).collect::<Vec<String>>());
+          program.current_guild = index;
+          program.update_guild(index);
+
+          
+          Proventus{value: Fructa::FokcordModifier(program), id: -5}
+        },
+        _ => panic!("incorrect type")
+      }
+    }
     _ => panic!("too many arguments passed")
   }
+}
+
+fn max(v: Vec<i32>) -> i32 {
+  let mut maximum = 0;
+  for i in v {
+    if i > maximum {
+      maximum = i
+    }
+  }
+  maximum
+}
+
+fn closest_match(val: String, matches: Vec<String>) -> usize {
+  let mut matchable: Vec<i32> = vec![];
+  for i in 0..matches.len() {
+    matchable.push(0);
+    let pivot;
+    let value;
+
+    if val.len()>=matches[i].len() {
+      value = val.chars().collect::<Vec<char>>();
+      pivot = matches[i].chars().collect::<Vec<char>>();
+    } else {
+      pivot = val.chars().collect::<Vec<char>>();
+      value = matches[i].chars().collect::<Vec<char>>();
+    }
+    for x in 0..pivot.len() {
+      if x<value.len() && pivot[x] == value[x] {
+        matchable[i]+=1;
+      }
+    }
+  }
+  //println!("\n\n\n{}{:#?}", max(matchable.clone()), matchable);
+  matchable.iter().position(|&x| x==max(matchable.clone())).unwrap()
 }
 
 pub fn change_channel(arguments: Arguments) -> Proventus {
@@ -430,24 +480,39 @@ pub fn change_channel(arguments: Arguments) -> Proventus {
     },
     FunctionArgs::singleFokcord(id, program) => {
       let mut program = program;
-      let id = uwInt(id);
-      let id = if id < 0 {
-        program.get_guild().channels.len()-id.abs() as usize
-      } else {
-        id as usize
-      };
-      if id < program.get_guild().channels.len() {
-        program.get_guild().current_channel = id;
-        program.fetch_messages(program.current_guild, id);
-      } else {
-        for i in 0..program.get_guild().channels.len() {
-          if program.get_guild().channels[i].id == id as i64 {
-            program.get_guild().current_channel = i;
-            program.fetch_messages(program.current_guild, i);
+      match id.value {
+        Fructa::Numerum(_) => {
+          let id = uwInt(id);
+          let id = if id < 0 {
+            program.get_guild().channels.len()-id.abs() as usize
+          } else {
+            id as usize
+          };
+          if id < program.get_guild().channels.len() {
+            program.get_guild().current_channel = id;
+            program.fetch_messages(program.current_guild, id);
+          } else {
+            for i in 0..program.get_guild().channels.len() {
+              if program.get_guild().channels[i].id == id as i64 {
+                program.get_guild().current_channel = i;
+                program.fetch_messages(program.current_guild, i);
+              }
+            }
           }
+          Proventus{value: Fructa::FokcordModifier(program), id: -5}
         }
+        Fructa::Inventarii(_) => {
+          let name = combine_list_to_string(id);
+          let index = closest_match(name, program.get_guild().channels.iter().map(|x| x.name.clone()).collect::<Vec<String>>());
+
+          //println!("!!!!!!!!!\n{:#?}\n!!!!!!", program.guilds.iter().map(|x| x.name.clone()).collect::<Vec<String>>());
+          program.get_guild().current_channel = index;
+          program.update_guild(index);
+          Proventus{value: Fructa::FokcordModifier(program), id: -5}
+        },
+        _ => panic!("?")
       }
-      Proventus{value: Fructa::FokcordModifier(program), id: -5}
+      
     },
     _ => panic!("too many arguments passed")
   }
